@@ -141,6 +141,24 @@
             flex-wrap: wrap;
         }
 
+        /* 散開位置の特殊レイアウト */
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .position-grid .pos-A { grid-column: 2; grid-row: 1; }
+        .position-grid .pos-1 { grid-column: 1; grid-row: 2; }
+        .position-grid .pos-2 { grid-column: 3; grid-row: 2; }
+        .position-grid .pos-D { grid-column: 1; grid-row: 3; }
+        .position-grid .pos-B { grid-column: 3; grid-row: 3; }
+        .position-grid .pos-4 { grid-column: 1; grid-row: 4; }
+        .position-grid .pos-3 { grid-column: 3; grid-row: 4; }
+        .position-grid .pos-C { grid-column: 2; grid-row: 5; }
+
         button.choice-btn {
             padding: 10px 16px;
             font-size: 14px;
@@ -287,17 +305,15 @@
 
                 <div class="section">
                     <h2><span class="status-indicator status-incomplete" id="status-2"></span>② 散開位置</h2>
-                    <div class="button-group">
-                        <button class="choice-btn" onclick="select(2, 'A')">A</button>
-                        <button class="choice-btn" onclick="select(2, 'B')">B</button>
-                        <button class="choice-btn" onclick="select(2, 'C')">C</button>
-                        <button class="choice-btn" onclick="select(2, 'D')">D</button>
-                    </div>
-                    <div class="button-group" style="margin-top: 8px;">
-                        <button class="choice-btn" onclick="select(2, '1')">1</button>
-                        <button class="choice-btn" onclick="select(2, '2')">2</button>
-                        <button class="choice-btn" onclick="select(2, '3')">3</button>
-                        <button class="choice-btn" onclick="select(2, '4')">4</button>
+                    <div class="position-grid">
+                        <button class="choice-btn pos-A" onclick="select(2, 'A')">A</button>
+                        <button class="choice-btn pos-1" onclick="select(2, '1')">1</button>
+                        <button class="choice-btn pos-2" onclick="select(2, '2')">2</button>
+                        <button class="choice-btn pos-D" onclick="select(2, 'D')">D</button>
+                        <button class="choice-btn pos-B" onclick="select(2, 'B')">B</button>
+                        <button class="choice-btn pos-4" onclick="select(2, '4')">4</button>
+                        <button class="choice-btn pos-3" onclick="select(2, '3')">3</button>
+                        <button class="choice-btn pos-C" onclick="select(2, 'C')">C</button>
                     </div>
                 </div>
 
@@ -350,7 +366,7 @@
     <script>
         // 選択状態を保存
         const selections = {
-            0: null, // 担当
+            0: null, // 担当（リセット対象外）
             1: null, // 初手パターン
             2: null, // 散開位置
             3: null, // 安置位置
@@ -411,21 +427,25 @@
             }
         }
 
-        // すべてクリア
+        // すべてクリア（MT/ST組は除外）
         function clearAll() {
-            if (!confirm('すべての選択をクリアしますか？')) {
-                return;
-            }
-            
-            for (let key in selections) {
+            // MT/ST組（category 0）以外をリセット
+            for (let key = 1; key <= 5; key++) {
                 selections[key] = null;
             }
             
-            document.querySelectorAll('button.choice-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
+            // ボタンの選択状態を解除（MT/ST組以外）
+            const sections = document.querySelectorAll('.section');
+            for (let i = 1; i < sections.length; i++) {
+                sections[i].querySelectorAll('button.choice-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+            }
             
+            // ステータスインジケーター更新
             updateStatusIndicators();
+            
+            // ヒントとマップをリセット
             document.getElementById('hint').innerHTML = 'すべての項目を選択してください';
             drawMap();
         }
@@ -492,7 +512,7 @@
             const centerX = width / 2;
             const centerY = height / 2;
 
-            // 背景グラデーション（画像風）
+            // 背景グラ��ーション（画像風）
             const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
             gradient.addColorStop(0, '#6b5d52');
             gradient.addColorStop(0.5, '#4a3d35');
