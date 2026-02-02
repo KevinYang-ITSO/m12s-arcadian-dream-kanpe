@@ -255,7 +255,7 @@
 
         .hint-step {
             margin-bottom: 12px;
-            padding: 10px;
+            padding: 12px;
             background-color: var(--bg-tertiary);
             border-radius: 5px;
             border-left: 4px solid var(--accent);
@@ -263,6 +263,49 @@
 
         .hint-step strong {
             color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .hint-detail {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .timeline {
+            background-color: var(--bg-primary);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: var(--bg-tertiary);
+            border-radius: 5px;
+        }
+
+        .timeline-number {
+            background-color: var(--accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+            font-size: 14px;
         }
 
         footer {
@@ -374,10 +417,6 @@
             5: null  // 分身位置
         };
 
-        // 画像ベースのマップを使用
-        const mapImage = new Image();
-        mapImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImJnIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGEzZDM1Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMmExYTE1Ii8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+PGNpcmNsZSBjeD0iMzAwIiBjeT0iMzAwIiByPSIzMDAiIGZpbGw9InVybCgjYmcpIi8+PC9zdmc+';
-
         // テーマ切り替え
         function toggleTheme() {
             const body = document.body;
@@ -392,23 +431,19 @@
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', savedTheme);
-            mapImage.onload = () => drawMap();
+            drawMap();
         });
 
         // 選択処理
         function select(category, value) {
             selections[category] = value;
             
-            // ボタンの選択状態を視覚的に表示
             const section = document.querySelectorAll('.section')[category];
             const buttons = section.querySelectorAll('button.choice-btn');
             buttons.forEach(btn => btn.classList.remove('selected'));
             event.target.classList.add('selected');
             
-            // ステータスインジケーター更新
             updateStatusIndicators();
-            
-            // ヒント計算とマップ描画
             calculateHint();
             drawMap();
         }
@@ -429,12 +464,10 @@
 
         // すべてクリア（MT/ST組は除外）
         function clearAll() {
-            // MT/ST組（category 0）以外をリセット
             for (let key = 1; key <= 5; key++) {
                 selections[key] = null;
             }
             
-            // ボタンの選択状態を解除（MT/ST組以外）
             const sections = document.querySelectorAll('.section');
             for (let i = 1; i < sections.length; i++) {
                 sections[i].querySelectorAll('button.choice-btn').forEach(btn => {
@@ -442,15 +475,12 @@
                 });
             }
             
-            // ステータスインジケーター更新
             updateStatusIndicators();
-            
-            // ヒントとマップをリセット
             document.getElementById('hint').innerHTML = 'すべての項目を選択してください';
             drawMap();
         }
 
-        // ヒント計算
+        // ヒント計算（実践的な攻略ロジック）
         function calculateHint() {
             if (Object.values(selections).some(v => v === null)) {
                 document.getElementById('hint').innerHTML = 
@@ -458,52 +488,121 @@
                 return;
             }
 
+            const role = selections[0]; // MT or ST
+            const pattern = selections[1]; // X or +
+            const position = selections[2]; // A,B,C,D,1,2,3,4
+            const safe = selections[3]; // 北 or 南
+            const order = selections[4]; // 頭割り or 円範囲
+            const clone = selections[5]; // 北分身 or 南分身
+
+            // 初手位置の判定
+            let firstMove = '';
+            if (pattern === 'X') {
+                if (['A', '1'].includes(position)) firstMove = '北西';
+                else if (['2', 'B'].includes(position)) firstMove = '北東';
+                else if (['3', 'C'].includes(position)) firstMove = '南東';
+                else if (['4', 'D'].includes(position)) firstMove = '南西';
+            } else { // +
+                if (['A', '1', '2'].includes(position)) firstMove = '北';
+                else if (['B', '2', '3'].includes(position)) firstMove = '東';
+                else if (['C', '3', '4'].includes(position)) firstMove = '南';
+                else if (['D', '4', '1'].includes(position)) firstMove = '西';
+            }
+
+            // 安置移動の判定
+            let safeMove = '';
+            if (safe === '北') {
+                safeMove = '北半分（１��２マーカー側）';
+            } else {
+                safeMove = '南半分（３，４マーカー側）';
+            }
+
+            // 処理順序の詳細
+            let orderDetail = '';
+            if (order === '頭割り') {
+                orderDetail = '頭割り（スタック）を先に処理 → その後散開して円範囲（ドーナツ）を受ける';
+            } else {
+                orderDetail = '円範囲（ドーナツ）を先に散開位置で処理 → その後集合して頭割り（スタック）を受ける';
+            }
+
+            // 分身の注意点
+            let cloneNote = '';
+            if (clone === '北分身') {
+                cloneNote = '北側の分身から扇範囲攻撃が来るので、南側が比較的安全';
+            } else {
+                cloneNote = '南側の分身から扇範囲攻撃が来るので、北側が比較的安全';
+            }
+
+            // タイムライン生成
+            const timeline = generateTimeline(role, pattern, position, safe, order, clone);
+
             let hint = `
                 <div class="hint-step">
-                    <strong>🎯 担当:</strong> ${selections[0]}組
+                    <strong>🎯 担当: ${role}組</strong>
+                    <div class="hint-detail">あなたは${role}組として行動します</div>
                 </div>
+                
                 <div class="hint-step">
-                    <strong>🔸 初手:</strong> ${selections[1]}字方向へ移動
+                    <strong>🔸 初手: ${pattern}字パターン → ${firstMove}へ</strong>
+                    <div class="hint-detail">${pattern}字の安全地帯である${firstMove}方向に移動してください</div>
                 </div>
+                
                 <div class="hint-step">
-                    <strong>📍 散開位置:</strong> ${selections[2]}番ポジション
+                    <strong>📍 散開位置: ${position}番</strong>
+                    <div class="hint-detail">散開が必要なときは必ず${position}マーカー位置へ</div>
                 </div>
+                
                 <div class="hint-step">
-                    <strong>✅ 安置:</strong> ${selections[3]}側へ移動
+                    <strong>✅ 安置: ${safeMove}</strong>
+                    <div class="hint-detail">AOE回避のため${safeMove}へ移動</div>
                 </div>
+                
                 <div class="hint-step">
-                    <strong>⚔️ 処理:</strong> ${selections[4]}を先に処理
+                    <strong>⚔️ 処理順序</strong>
+                    <div class="hint-detail">${orderDetail}</div>
                 </div>
+                
                 <div class="hint-step">
-                    <strong>👤 分身:</strong> ${selections[5]}に注意
+                    <strong>👤 分身: ${clone}</strong>
+                    <div class="hint-detail">${cloneNote}</div>
                 </div>
-                <div style="margin-top: 20px; padding: 15px; background-color: var(--accent); color: white; border-radius: 5px; text-align: center; font-weight: bold;">
-                    ${generateAdvancedHint()}
+
+                <div class="timeline">
+                    <strong style="color: var(--accent); display: block; margin-bottom: 10px;">⏱️ 動きのタイムライン</strong>
+                    ${timeline}
                 </div>
             `;
 
             document.getElementById('hint').innerHTML = hint;
         }
 
-        // 高度なヒント生成
-        function generateAdvancedHint() {
-            const combo = `${selections[1]}-${selections[3]}-${selections[4]}`;
-            
-            const hints = {
-                'X-北-頭割り': '北西/北東から頭割りへ移動 → 円範囲散開',
-                'X-北-円範囲': '北西/北東で円範囲処理 → 南へ頭割り',
-                'X-南-頭割り': '南西/南東から頭割りへ移動 → 円範囲散開',
-                'X-南-円範囲': '南西/南東で円範囲処理 → 北へ頭割り',
-                '+-北-頭割り': '北から頭割りへ移動 → 円範囲散開',
-                '+-北-円範囲': '北で円範囲処理 → 南へ頭割り',
-                '+-南-頭割り': '南から頭割りへ移動 → 円範囲散開',
-                '+-南-円範囲': '南で円範囲処理 → 北へ頭割り'
-            };
+        // タイムライン生成
+        function generateTimeline(role, pattern, position, safe, order, clone) {
+            let steps = [];
 
-            return hints[combo] || '安置確認後、指定された順序で処理してください';
+            steps.push(`${pattern}字方向（${position}番の方向）へ移動`);
+            steps.push(`${safe}側の安置エリアへ移動`);
+            
+            if (order === '頭割り') {
+                steps.push(`頭割り位置に集合してスタックを受ける`);
+                steps.push(`${position}番散開位置へ移動して円範囲を処理`);
+            } else {
+                steps.push(`${position}番散開位置で円範囲を処理`);
+                steps.push(`頭割り位置に集合してスタックを受ける`);
+            }
+
+            steps.push(`${clone}の扇範囲を避けながら次の位置へ`);
+            steps.push(`デバフを確認して次のギミックに備える`);
+
+            return steps.map((step, index) => `
+                <div class="timeline-step">
+                    <div class="timeline-number">${index + 1}</div>
+                    <div class="timeline-content">${step}</div>
+                </div>
+            `).join('');
         }
 
-        // マップ描画（画像ベース）
+        // マップ描画
         function drawMap() {
             const canvas = document.getElementById('map-canvas');
             const ctx = canvas.getContext('2d');
@@ -512,7 +611,7 @@
             const centerX = width / 2;
             const centerY = height / 2;
 
-            // 背景グラ��ーション（画像風）
+            // 背景グラデーション
             const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
             gradient.addColorStop(0, '#6b5d52');
             gradient.addColorStop(0.5, '#4a3d35');
@@ -523,7 +622,7 @@
             ctx.arc(centerX, centerY, width / 2, 0, 2 * Math.PI);
             ctx.fill();
 
-            // X字のパターン（ダイヤモンド形状）
+            // X字のパターン
             ctx.strokeStyle = 'rgba(150, 120, 90, 0.3)';
             ctx.lineWidth = 80;
             ctx.beginPath();
@@ -551,20 +650,17 @@
                 const isSelected = selections[2] === pos;
                 const size = isSelected ? 35 : 28;
                 
-                // 外側の円
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, size, 0, 2 * Math.PI);
                 ctx.strokeStyle = p.color;
                 ctx.lineWidth = 3;
                 ctx.stroke();
                 
-                // 内側の円
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, size - 5, 0, 2 * Math.PI);
                 ctx.fillStyle = isSelected ? p.color : 'rgba(0, 0, 0, 0.6)';
                 ctx.fill();
                 
-                // ラベル
                 ctx.fillStyle = isSelected ? '#000' : '#fff';
                 ctx.font = isSelected ? 'bold 24px Arial' : 'bold 20px Arial';
                 ctx.textAlign = 'center';
