@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF14 アルカディアンドリーム 攻略ヒント</title>
+    <style>
+        body {
+            font-family: 'Meiryo', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a2e;
+            color: #eee;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #16213e;
+            border-radius: 8px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: 2px solid #0f3460;
+            background-color: #0f3460;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #e94560;
+            border-color: #e94560;
+        }
+        button.selected {
+            background-color: #e94560;
+            border-color: #e94560;
+            font-weight: bold;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #0f3460;
+            border-radius: 8px;
+            font-size: 18px;
+            min-height: 100px;
+        }
+        h2 {
+            color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 アルカディアンドリーム 攻略ヒント</h1>
+    
+    <div class="section">
+        <h2>⓪ 担当</h2>
+        <div class="button-group">
+            <button onclick="select(0, 'MT')">MT組</button>
+            <button onclick="select(0, 'ST')">ST組</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>① 初手パターン</h2>
+        <div class="button-group">
+            <button onclick="select(1, 'X')">X字先</button>
+            <button onclick="select(1, '+')">十字先</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>② 散開位置</h2>
+        <div class="button-group">
+            <button onclick="select(2, 'A')">A</button>
+            <button onclick="select(2, 'B')">B</button>
+            <button onclick="select(2, 'C')">C</button>
+            <button onclick="select(2, 'D')">D</button>
+            <button onclick="select(2, '1')">1</button>
+            <button onclick="select(2, '2')">2</button>
+            <button onclick="select(2, '3')">3</button>
+            <button onclick="select(2, '4')">4</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>③ 安置位置</h2>
+        <div class="button-group">
+            <button onclick="select(3, '北')">北（１，２）安置</button>
+            <button onclick="select(3, '南')">南（３，４）安置</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>④ 処理順序</h2>
+        <div class="button-group">
+            <button onclick="select(4, '頭割り')">頭割り先</button>
+            <button onclick="select(4, '円範囲')">円範囲先</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>⑤ 分身位置</h2>
+        <div class="button-group">
+            <button onclick="select(5, '北分身')">北分身</button>
+            <button onclick="select(5, '南分身')">南分身</button>
+        </div>
+    </div>
+
+    <div id="result">
+        <h2>📋 攻略ヒント</h2>
+        <div id="hint">すべての項目を選択してください</div>
+    </div>
+
+    <script>
+        // 選択状態を保存
+        const selections = {
+            0: null, // 担当
+            1: null, // 初手パターン
+            2: null, // 散開位置
+            3: null, // 安置位置
+            4: null, // 処理順序
+            5: null  // 分身位置
+        };
+
+        function select(category, value) {
+            selections[category] = value;
+            
+            // ボタンの選択状態を視覚的に表示
+            const buttons = document.querySelectorAll('.section')[category].querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            calculateHint();
+        }
+
+        function calculateHint() {
+            // すべて選択されているかチェック
+            if (Object.values(selections).some(v => v === null)) {
+                document.getElementById('hint').innerHTML = 'すべての項目を選択してください';
+                return;
+            }
+
+            // ここにロジックを実装
+            // 選択された値に基づいてヒントを生成
+            let hint = `
+                <strong>あなたの動き方：</strong><br><br>
+                担当: ${selections[0]}組<br>
+                初手: ${selections[1]}字方向へ移動<br>
+                散開位置: ${selections[2]}番<br>
+                安置: ${selections[3]}側へ<br>
+                ${selections[4]}を先に処理<br>
+                ${selections[5]}に注意
+            `;
+
+            document.getElementById('hint').innerHTML = hint;
+        }
+    </script>
+</body>
+</html>
