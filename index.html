@@ -5,117 +5,346 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FF14 アルカディアンドリーム 攻略ヒント</title>
     <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --text-primary: #eee;
+            --text-secondary: #ccc;
+            --accent: #e94560;
+            --accent-hover: #c73552;
+            --border: #0f3460;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e0e0e0;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --accent: #2196F3;
+            --accent-hover: #1976D2;
+            --border: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Meiryo', sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: 'Meiryo', 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 20px;
-            background-color: #1a1a2e;
-            color: #eee;
+            background-color: var(--bg-secondary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        .section {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #16213e;
-            border-radius: 8px;
+
+        h1 {
+            color: var(--accent);
+            font-size: 24px;
         }
-        .button-group {
+
+        .header-controls {
             display: flex;
             gap: 10px;
+        }
+
+        .theme-toggle, .clear-btn {
+            padding: 10px 20px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover, .clear-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: var(--bg-primary);
+            border-right: 2px solid var(--border);
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+            }
+        }
+
+        .section {
+            background-color: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+        }
+
+        .section h2 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
             flex-wrap: wrap;
         }
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            border: 2px solid #0f3460;
-            background-color: #0f3460;
-            color: white;
+
+        button.choice-btn {
+            padding: 10px 16px;
+            font-size: 14px;
+            border: 2px solid var(--border);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
+            flex: 1;
+            min-width: 80px;
         }
-        button:hover {
-            background-color: #e94560;
-            border-color: #e94560;
+
+        button.choice-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-2px);
         }
-        button.selected {
-            background-color: #e94560;
-            border-color: #e94560;
+
+        button.choice-btn.selected {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
             font-weight: bold;
+            box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
         }
-        #result {
-            margin-top: 30px;
+
+        [data-theme="light"] button.choice-btn.selected {
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-incomplete {
+            background-color: #ff6b6b;
+        }
+
+        .status-complete {
+            background-color: #51cf66;
+        }
+
+        #map-container {
+            background-color: var(--bg-secondary);
             padding: 20px;
-            background-color: #0f3460;
-            border-radius: 8px;
-            font-size: 18px;
-            min-height: 100px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
         }
-        h2 {
-            color: #e94560;
+
+        #map-container h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #map-canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        #result {
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        #result h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        #hint {
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .hint-step {
+            margin-bottom: 12px;
+            padding: 10px;
+            background-color: var(--bg-tertiary);
+            border-radius: 5px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .hint-step strong {
+            color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            background-color: var(--bg-secondary);
         }
     </style>
 </head>
-<body>
-    <h1>🎮 アルカディアンドリーム 攻略ヒント</h1>
-    
-    <div class="section">
-        <h2>⓪ 担当</h2>
-        <div class="button-group">
-            <button onclick="select(0, 'MT')">MT組</button>
-            <button onclick="select(0, 'ST')">ST組</button>
-        </div>
-    </div>
+<body data-theme="dark">
+    <div class="container">
+        <header>
+            <h1>🎮 アルカディアンドリーム 攻略ヒント</h1>
+            <div class="header-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">🌓 テーマ切替</button>
+                <button class="clear-btn" onclick="clearAll()">🔄 選択クリア</button>
+            </div>
+        </header>
 
-    <div class="section">
-        <h2>① 初手パターン</h2>
-        <div class="button-group">
-            <button onclick="select(1, 'X')">X字先</button>
-            <button onclick="select(1, '+')">十字先</button>
-        </div>
-    </div>
+        <div class="main-content">
+            <!-- 左パネル：ボタン -->
+            <div class="left-panel">
+                <div class="section">
+                    <h2><span class="status-indicator status-incomplete" id="status-0"></span>⓪ 担当</h2>
+                    <div class="button-group">
+                        <button class="choice-btn" onclick="select(0, 'MT')">MT組</button>
+                        <button class="choice-btn" onclick="select(0, 'ST')">ST組</button>
+                    </div>
+                </div>
 
-    <div class="section">
-        <h2>② 散開位置</h2>
-        <div class="button-group">
-            <button onclick="select(2, 'A')">A</button>
-            <button onclick="select(2, 'B')">B</button>
-            <button onclick="select(2, 'C')">C</button>
-            <button onclick="select(2, 'D')">D</button>
-            <button onclick="select(2, '1')">1</button>
-            <button onclick="select(2, '2')">2</button>
-            <button onclick="select(2, '3')">3</button>
-            <button onclick="select(2, '4')">4</button>
-        </div>
-    </div>
+                <div class="section">
+                    <h2><span class="status-indicator status-incomplete" id="status-1"></span>① 初手パターン</h2>
+                    <div class="button-group">
+                        <button class="choice-btn" onclick="select(1, 'X')">X字先</button>
+                        <button class="choice-btn" onclick="select(1, '+')">十字先</button>
+                    </div>
+                </div>
 
-    <div class="section">
-        <h2>③ 安置位置</h2>
-        <div class="button-group">
-            <button onclick="select(3, '北')">北（１，２）安置</button>
-            <button onclick="select(3, '南')">南（３，４）安置</button>
-        </div>
-    </div>
+                <div class="section">
+                    <h2><span class="status-indicator status-incomplete" id="status-2"></span>② 散開位置</h2>
+                    <div class="button-group">
+                        <button class="choice-btn" onclick="select(2, 'A')">A</button>
+                        <button class="choice-btn" onclick="select(2, 'B')">B</button>
+                        <button class="choice-btn" onclick="select(2, 'C')">C</button>
+                        <button class="choice-btn" onclick="select(2, 'D')">D</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 8px;">
+                        <button class="choice-btn" onclick="select(2, '1')">1</button>
+                        <button class="choice-btn" onclick="select(2, '2')">2</button>
+                        <button class="choice-btn" onclick="select(2, '3')">3</button>
+                        <button class="choice-btn" onclick="select(2, '4')">4</button>
+                    </div>
+                </div>
 
-    <div class="section">
-        <h2>④ 処理順序</h2>
-        <div class="button-group">
-            <button onclick="select(4, '頭割り')">頭割り先</button>
-            <button onclick="select(4, '円範囲')">円範囲先</button>
-        </div>
-    </div>
+                <div class="section">
+                    <h2><span class="status-indicator status-incomplete" id="status-3"></span>③ 安置位置</h2>
+                    <div class="button-group">
+                        <button class="choice-btn" onclick="select(3, '北')">北（１，２）安置</button>
+                        <button class="choice-btn" onclick="select(3, '南')">南（３，４）安置</button>
+                    </div>
+                </div>
 
-    <div class="section">
-        <h2>⑤ 分身位置</h2>
-        <div class="button-group">
-            <button onclick="select(5, '北分身')">北分身</button>
-            <button onclick="select(5, '南分身')">南分身</button>
-        </div>
-    </div>
+                <div class="section">
+                    <h2><span class="status-indicator status-incomplete" id="status-4"></span>④ 処理順序</h2>
+                    <div class="button-group">
+                        <button class="choice-btn" onclick="select(4, '頭割り')">頭割り先</button>
+                        <button class="choice-btn" onclick="select(4, '円範囲')">円範囲先</button>
+                    </div>
+                </div>
 
-    <div id="result">
-        <h2>📋 攻略ヒント</h2>
-        <div id="hint">すべての項目を選択してください</div>
+                <div class="section">
+                    <h2><span class="status-indicator status-incomplete" id="status-5"></span>⑤ 分身位置</h2>
+                    <div class="button-group">
+                        <button class="choice-btn" onclick="select(5, '北分身')">北分身</button>
+                        <button class="choice-btn" onclick="select(5, '南分身')">南分身</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右パネル：結果とマップ -->
+            <div class="right-panel">
+                <div id="map-container">
+                    <h2>🗺️ フィールドマップ</h2>
+                    <div class="map-wrapper">
+                        <canvas id="map-canvas" width="600" height="600"></canvas>
+                    </div>
+                </div>
+
+                <div id="result">
+                    <h2>📋 攻略ヒント</h2>
+                    <div id="hint">すべての項目を選択してください</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>FF14 高難易度コンテンツ「至天の座アルカディア ヘビー級零式4層後半」攻略支援ツール</p>
+        </footer>
     </div>
 
     <script>
@@ -129,38 +358,260 @@
             5: null  // 分身位置
         };
 
+        // 画像ベースのマップを使用
+        const mapImage = new Image();
+        mapImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImJnIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGEzZDM1Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMmExYTE1Ii8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+PGNpcmNsZSBjeD0iMzAwIiBjeT0iMzAwIiByPSIzMDAiIGZpbGw9InVybCgjYmcpIi8+PC9zdmc+';
+
+        // テーマ切り替え
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            drawMap();
+        }
+
+        // ページ読み込み時にテーマを復元
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            mapImage.onload = () => drawMap();
+        });
+
+        // 選択処理
         function select(category, value) {
             selections[category] = value;
             
             // ボタンの選択状態を視覚的に表示
-            const buttons = document.querySelectorAll('.section')[category].querySelectorAll('button');
+            const section = document.querySelectorAll('.section')[category];
+            const buttons = section.querySelectorAll('button.choice-btn');
             buttons.forEach(btn => btn.classList.remove('selected'));
             event.target.classList.add('selected');
             
+            // ステータスインジケーター更新
+            updateStatusIndicators();
+            
+            // ヒント計算とマップ描画
             calculateHint();
+            drawMap();
         }
 
+        // ステータスインジケーター更新
+        function updateStatusIndicators() {
+            for (let i = 0; i <= 5; i++) {
+                const indicator = document.getElementById(`status-${i}`);
+                if (selections[i] !== null) {
+                    indicator.classList.remove('status-incomplete');
+                    indicator.classList.add('status-complete');
+                } else {
+                    indicator.classList.remove('status-complete');
+                    indicator.classList.add('status-incomplete');
+                }
+            }
+        }
+
+        // すべてクリア
+        function clearAll() {
+            if (!confirm('すべての選択をクリアしますか？')) {
+                return;
+            }
+            
+            for (let key in selections) {
+                selections[key] = null;
+            }
+            
+            document.querySelectorAll('button.choice-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            updateStatusIndicators();
+            document.getElementById('hint').innerHTML = 'すべての項目を選択してください';
+            drawMap();
+        }
+
+        // ヒント計算
         function calculateHint() {
-            // すべて選択されているかチェック
             if (Object.values(selections).some(v => v === null)) {
-                document.getElementById('hint').innerHTML = 'すべての項目を選択してください';
+                document.getElementById('hint').innerHTML = 
+                    '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">すべての項目を選択してください</div>';
                 return;
             }
 
-            // ここにロジックを実装
-            // 選択された値に基づいてヒントを生成
             let hint = `
-                <strong>あなたの動き方：</strong><br><br>
-                担当: ${selections[0]}組<br>
-                初手: ${selections[1]}字方向へ移動<br>
-                散開位置: ${selections[2]}番<br>
-                安置: ${selections[3]}側へ<br>
-                ${selections[4]}を先に処理<br>
-                ${selections[5]}に注意
+                <div class="hint-step">
+                    <strong>🎯 担当:</strong> ${selections[0]}組
+                </div>
+                <div class="hint-step">
+                    <strong>🔸 初手:</strong> ${selections[1]}字方向へ移動
+                </div>
+                <div class="hint-step">
+                    <strong>📍 散開位置:</strong> ${selections[2]}番ポジション
+                </div>
+                <div class="hint-step">
+                    <strong>✅ 安置:</strong> ${selections[3]}側へ移動
+                </div>
+                <div class="hint-step">
+                    <strong>⚔️ 処理:</strong> ${selections[4]}を先に処理
+                </div>
+                <div class="hint-step">
+                    <strong>👤 分身:</strong> ${selections[5]}に注意
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background-color: var(--accent); color: white; border-radius: 5px; text-align: center; font-weight: bold;">
+                    ${generateAdvancedHint()}
+                </div>
             `;
 
             document.getElementById('hint').innerHTML = hint;
         }
+
+        // 高度なヒント生成
+        function generateAdvancedHint() {
+            const combo = `${selections[1]}-${selections[3]}-${selections[4]}`;
+            
+            const hints = {
+                'X-北-頭割り': '北西/北東から頭割りへ移動 → 円範囲散開',
+                'X-北-円範囲': '北西/北東で円範囲処理 → 南へ頭割り',
+                'X-南-頭割り': '南西/南東から頭割りへ移動 → 円範囲散開',
+                'X-南-円範囲': '南西/南東で円範囲処理 → 北へ頭割り',
+                '+-北-頭割り': '北から頭割りへ移動 → 円範囲散開',
+                '+-北-円範囲': '北で円範囲処理 → 南へ頭割り',
+                '+-南-頭割り': '南から頭割りへ移動 → 円範囲散開',
+                '+-南-円範囲': '南で円範囲処理 → 北へ頭割り'
+            };
+
+            return hints[combo] || '安置確認後、指定された順序で処理してください';
+        }
+
+        // マップ描画（画像ベース）
+        function drawMap() {
+            const canvas = document.getElementById('map-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // 背景グラデーション（画像風）
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
+            gradient.addColorStop(0, '#6b5d52');
+            gradient.addColorStop(0.5, '#4a3d35');
+            gradient.addColorStop(1, '#2a1a15');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, width / 2, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // X字のパターン（ダイヤモンド形状）
+            ctx.strokeStyle = 'rgba(150, 120, 90, 0.3)';
+            ctx.lineWidth = 80;
+            ctx.beginPath();
+            ctx.moveTo(50, 50);
+            ctx.lineTo(550, 550);
+            ctx.moveTo(550, 50);
+            ctx.lineTo(50, 550);
+            ctx.stroke();
+
+            // 散開位置マーカー
+            const positions = {
+                'A': { x: centerX, y: 80, color: '#d946a6', label: 'A' },
+                '1': { x: 150, y: 200, color: '#d946a6', label: '1' },
+                'D': { x: 100, y: centerY, color: '#a855f7', label: 'D' },
+                '4': { x: 150, y: 400, color: '#a855f7', label: '4' },
+                'C': { x: centerX, y: 520, color: '#60a5fa', label: 'C' },
+                '3': { x: 450, y: 400, color: '#60a5fa', label: '3' },
+                'B': { x: 500, y: centerY, color: '#fbbf24', label: 'B' },
+                '2': { x: 450, y: 200, color: '#fbbf24', label: '2' }
+            };
+
+            // 各マーカーを描画
+            Object.keys(positions).forEach(pos => {
+                const p = positions[pos];
+                const isSelected = selections[2] === pos;
+                const size = isSelected ? 35 : 28;
+                
+                // 外側の円
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, size, 0, 2 * Math.PI);
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // 内側の円
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, size - 5, 0, 2 * Math.PI);
+                ctx.fillStyle = isSelected ? p.color : 'rgba(0, 0, 0, 0.6)';
+                ctx.fill();
+                
+                // ラベル
+                ctx.fillStyle = isSelected ? '#000' : '#fff';
+                ctx.font = isSelected ? 'bold 24px Arial' : 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(p.label, p.x, p.y);
+            });
+
+            // 初手パターンを強調
+            if (selections[1]) {
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 6;
+                ctx.setLineDash([15, 10]);
+                
+                if (selections[1] === 'X') {
+                    ctx.beginPath();
+                    ctx.moveTo(100, 100);
+                    ctx.lineTo(500, 500);
+                    ctx.moveTo(500, 100);
+                    ctx.lineTo(100, 500);
+                    ctx.stroke();
+                } else if (selections[1] === '+') {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, 80);
+                    ctx.lineTo(centerX, 520);
+                    ctx.moveTo(80, centerY);
+                    ctx.lineTo(520, centerY);
+                    ctx.stroke();
+                }
+                
+                ctx.setLineDash([]);
+            }
+
+            // 安置エリアを表示
+            if (selections[3]) {
+                ctx.save();
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#51cf66';
+                
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, width / 2, 0, 2 * Math.PI);
+                ctx.clip();
+                
+                if (selections[3] === '北') {
+                    ctx.fillRect(0, 0, width, centerY);
+                } else if (selections[3] === '南') {
+                    ctx.fillRect(0, centerY, width, centerY);
+                }
+                ctx.restore();
+            }
+
+            // 分身位置
+            if (selections[5]) {
+                const cloneY = selections[5] === '北分身' ? 50 : height - 50;
+                ctx.fillStyle = '#e94560';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('👤', centerX, cloneY);
+            }
+        }
+
+        // 初期化
+        window.addEventListener('load', () => {
+            drawMap();
+            updateStatusIndicators();
+        });
+
+        window.addEventListener('resize', drawMap);
     </script>
 </body>
 </html>
